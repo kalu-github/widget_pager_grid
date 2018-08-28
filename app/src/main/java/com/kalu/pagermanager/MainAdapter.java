@@ -14,11 +14,14 @@ public final class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHo
     public static List<String> data = new ArrayList<>();
 
     static {
-        for (int i = 1; i <= 15; i++) {
+        for (int i = 1; i <= 33; i++) {
             data.add(i + "");
         }
     }
 
+    public void clear() {
+        data.clear();
+    }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

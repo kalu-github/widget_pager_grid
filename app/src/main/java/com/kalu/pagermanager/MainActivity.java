@@ -1,30 +1,27 @@
 package com.kalu.pagermanager;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.TextView;
-
-import lib.kalu.pagermanager.PagerGridLayoutManager;
-import lib.kalu.pagermanager.PagerGridSnapHelper;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements PagerGridLayoutManager.PageListener, RadioGroup.OnCheckedChangeListener {
+import lib.kalu.pagermanager.PagerGridLayoutManager;
+import lib.kalu.pagermanager.PagerGridSnapHelper;
+
+public class MainActivity extends AppCompatActivity implements PagerGridLayoutManager.OnPagerGridLayoutManagerChangeListener {
 
     private int mRows = 2;
     private int mColumns = 3;
     private RecyclerView mRecyclerView;
     private MainAdapter mAdapter;
     private PagerGridLayoutManager mLayoutManager;
-    private RadioGroup mRadioGroup;
     private TextView mPageTotal;        // 总页数
     private TextView mPageCurrent;      // 当前页数
 
@@ -35,10 +32,6 @@ public class MainActivity extends AppCompatActivity implements PagerGridLayoutMa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.i("GCS", "onCreate");
-
-        mRadioGroup = (RadioGroup) findViewById(R.id.orientation_type);
-        mRadioGroup.setOnCheckedChangeListener(this);
 
         mPageTotal = (TextView) findViewById(R.id.page_total);
         mPageCurrent = (TextView) findViewById(R.id.page_current);
@@ -50,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements PagerGridLayoutMa
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
         // 水平分页布局管理器
-        mLayoutManager.setPageListener(this);    // 设置页面变化监听器
+        mLayoutManager.setOnPagerGridLayoutManagerChangeListener(this);    // 设置页面变化监听器
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // 设置滚动辅助工具
@@ -60,23 +53,22 @@ public class MainActivity extends AppCompatActivity implements PagerGridLayoutMa
         // 使用原生的 Adapter 即可
         mAdapter = new MainAdapter();
         mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override public void onChanged() {
+            @Override
+            public void onChanged() {
                 super.onChanged();
             }
         });
         mRecyclerView.setAdapter(mAdapter);
     }
 
-    @Override public void onPageSizeChanged(int pageSize) {
-        mTotal = pageSize;
-        Log.e("TAG", "总页数 = " + pageSize);
-        mPageTotal.setText("共 " + pageSize + " 页");
-    }
+    public void onRefresh(View view) {
 
-    @Override public void onPageSelect(int pageIndex) {
-        mCurrent = pageIndex;
-        Log.e("TAG", "选中页码 = " + pageIndex);
-        mPageCurrent.setText("第 " + (pageIndex + 1) + " 页");
+        Toast.makeText(getApplicationContext(), "onRefresh", Toast.LENGTH_SHORT).show();
+
+        final RecyclerView recycler = findViewById(R.id.recycler_view);
+        final PagerGridLayoutManager manager = (PagerGridLayoutManager) recycler.getLayoutManager();
+        manager.refreshLayoutManager(3, 4, LinearLayout.HORIZONTAL);
+        recycler.getAdapter().notifyDataSetChanged();
     }
 
     public void addOne(View view) {
@@ -100,20 +92,6 @@ public class MainActivity extends AppCompatActivity implements PagerGridLayoutMa
         mAdapter.notifyDataSetChanged();
     }
 
-    @SuppressLint("WrongConstant")
-    @Override public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
-        int type = -1;
-        if (checkedId == R.id.type_horizontal) {
-            type = mLayoutManager.setOrientationType(LinearLayout.HORIZONTAL);
-        } else if (checkedId == R.id.type_vertical) {
-            type = mLayoutManager.setOrientationType(LinearLayout.VERTICAL);
-        } else {
-            throw new RuntimeException("不支持的方向类型");
-        }
-
-        Log.i("GCST", "type == " + type);
-    }
-
     public void prePage(View view) {
         mLayoutManager.scrollPrePage();
     }
@@ -135,7 +113,18 @@ public class MainActivity extends AppCompatActivity implements PagerGridLayoutMa
     }
 
     public void lastPage(View view) {
-        mRecyclerView.smoothScrollToPosition(mAdapter.getItemCount()-1);
+        mRecyclerView.smoothScrollToPosition(mAdapter.getItemCount() - 1);
     }
 
+    @Override
+    public void onChange(int pagesCount, int pagesIndex) {
+
+        mTotal = pagesCount;
+        Log.e("TAG", "总页数 = " + pagesCount);
+        mPageTotal.setText("共 " + pagesCount + " 页");
+
+        mCurrent = pagesIndex;
+        Log.e("TAG", "选中页码 = " + pagesIndex);
+        mPageCurrent.setText("第 " + (pagesIndex + 1) + " 页");
+    }
 }
