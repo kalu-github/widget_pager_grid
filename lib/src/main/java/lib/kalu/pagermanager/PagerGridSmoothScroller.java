@@ -79,7 +79,7 @@ public final class PagerGridSmoothScroller extends LinearSmoothScroller {
      */
     @Override
     protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
-        return 0.25f;
+        return 0.75f;
     }
 
 //    @Override

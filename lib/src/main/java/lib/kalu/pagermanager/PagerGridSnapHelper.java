@@ -49,48 +49,47 @@ public final class PagerGridSnapHelper extends SnapHelper {
         return isNull ? null : ((PagerGridLayoutManager) layoutManager).findSnapView();
     }
 
+    /**
+     * fling 回调方法，方法中调用了snapFromFling，真正的对齐逻辑在snapFromFling里
+     */
     @Override
     public boolean onFling(int velocityX, int velocityY) {
-        Log.e("kalu", "onFling ==> velocityX = " + velocityX + ", velocityY = " + velocityY);
-
-        if (null == mRecyclerView) {
-            Log.e("kalu", "onFling ==> null == mRecyclerView");
+        RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();
+        if (layoutManager == null) {
             return false;
         }
-
-        final RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();
-        if (null == layoutManager) {
-            Log.e("kalu", "onFling ==> null == layoutManager");
+        RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
+        if (adapter == null) {
             return false;
         }
+        final int minFlingVelocity = mRecyclerView.getMinFlingVelocity();
+        final boolean ok1 = (Math.abs(velocityY) > minFlingVelocity || Math.abs(velocityX) > minFlingVelocity);
+        return ok1 && snapFromFling(layoutManager, velocityX, velocityY);
+    }
 
-        final int targetPosition = findTargetSnapPosition(layoutManager, velocityX, velocityY);
-        if (targetPosition == RecyclerView.NO_POSITION) {
-            Log.e("kalu", "onFling ==> targetPosition == -1");
-            return false;
-        }
-
+    /**
+     * snapFromFling 方法被fling 触发，用来帮助实现fling 时View对齐
+     */
+    private boolean snapFromFling(@NonNull RecyclerView.LayoutManager layoutManager, int velocityX, int velocityY) {
+        // 首先需要判断LayoutManager 实现了ScrollVectorProvider 接口没有，
+        //如果没有实现 ,则直接返回。
         if (!(layoutManager instanceof RecyclerView.SmoothScroller.ScrollVectorProvider)) {
-            Log.e("kalu", "onFling ==> layoutManager != RecyclerView.SmoothScroller.ScrollVectorProvider");
             return false;
         }
-
-        final RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
-        if (null == adapter) {
-            Log.e("kalu", "onFling ==> null == adapter");
-            return false;
-        }
-
-        final RecyclerView.SmoothScroller smoothScroller = createSnapScroller(layoutManager);
+        // 创建一个SmoothScroller 用来做滑动到指定位置
+        RecyclerView.SmoothScroller smoothScroller = createSnapScroller(layoutManager);
         if (smoothScroller == null) {
-            Log.e("kalu", "onFling ==> null == smoothScroller");
             return false;
         }
-
-        final boolean ok = (Math.abs(velocityY) > 500 || Math.abs(velocityX) > 500);
+        // 根据x 和 y 方向的速度来获取需要对齐的View的位置，需要子类实现。
+        int targetPosition = findTargetSnapPosition(layoutManager, velocityX, velocityY);
+        if (targetPosition == RecyclerView.NO_POSITION) {
+            return false;
+        }
+        // 最终通过 SmoothScroller 来滑动到指定位置
         smoothScroller.setTargetPosition(targetPosition);
         layoutManager.startSmoothScroll(smoothScroller);
-        return ok;
+        return true;
     }
 
     /**
@@ -113,17 +112,17 @@ public final class PagerGridSnapHelper extends SnapHelper {
             final boolean horizontally = manager.canScrollHorizontally();
             final boolean vertically = manager.canScrollVertically();
             if (horizontally && !vertically) {
-                if (velocityX > 500) {
+                if (velocityX > 1000) {
                     return manager.findNextPageFirstPosition();
-                } else if (velocityX < -500) {
+                } else if (velocityX < -1000) {
                     return manager.findPrePageFirstPosition();
                 } else {
                     return -1;
                 }
             } else if (!horizontally && vertically) {
-                if (velocityY > 500) {
+                if (velocityY > 1000) {
                     return manager.findNextPageFirstPosition();
-                } else if (velocityY < -500) {
+                } else if (velocityY < -1000) {
                     return manager.findPrePageFirstPosition();
                 } else {
                     return -1;
