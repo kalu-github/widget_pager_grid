@@ -44,7 +44,7 @@ public final class PagerGridLayoutManager extends RecyclerView.LayoutManager imp
 
     /**********************************************************************************************/
 
-    public PagerGridLayoutManager(@IntRange(from = 1, to = 100) int rows, @IntRange(from = 1, to = 100) int columns, @IntRange(from = 0, to = 1) int orientation) {
+    public PagerGridLayoutManager(@IntRange(from = 1, to = Integer.MAX_VALUE) int rows, @IntRange(from = 1, to = Integer.MAX_VALUE) int columns, @IntRange(from = 0, to = 1) int orientation) {
         mOrientation = orientation;
         mRows = rows;
         mColumns = columns;
@@ -623,7 +623,7 @@ public final class PagerGridLayoutManager extends RecyclerView.LayoutManager imp
 
     /**************************************    方法    ********************************************/
 
-    public final void refreshLayoutManager(@IntRange(from = 1, to = 100) int rows, @IntRange(from = 1, to = 100) int columns, @IntRange(from = 0, to = 1) int orientation) {
+    public final void refreshLayoutManager(@IntRange(from = 1, to = Integer.MAX_VALUE) int rows, @IntRange(from = 1, to = Integer.MAX_VALUE) int columns, @IntRange(from = 0, to = 1) int orientation) {
 
         mOrientation = orientation;
         mRows = rows;
