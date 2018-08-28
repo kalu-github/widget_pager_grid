@@ -10,6 +10,7 @@ import android.view.ViewParent;
 
 /**
  * description: 平滑滚动器
+ * https://www.jianshu.com/p/ef3a3b8d0a77
  * created by kalu on 2018/8/8 16:44
  */
 public final class PagerGridSmoothScroller extends LinearSmoothScroller {

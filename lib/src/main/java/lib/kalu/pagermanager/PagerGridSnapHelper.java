@@ -10,6 +10,7 @@ import android.view.View;
 
 /**
  * description: 手势
+ * https://www.jianshu.com/p/ef3a3b8d0a77
  * created by kalu on 2018/8/28 11:20
  */
 public final class PagerGridSnapHelper extends SnapHelper {

@@ -17,6 +17,7 @@ import static android.view.View.MeasureSpec.EXACTLY;
 
 /**
  * description: 网格布局, 水平分页和垂直分页
+ * https://www.jianshu.com/p/ef3a3b8d0a77
  * created by kalu on 2018/8/27 17:33
  */
 public final class PagerGridLayoutManager extends RecyclerView.LayoutManager implements RecyclerView.SmoothScroller.ScrollVectorProvider {
